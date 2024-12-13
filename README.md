@@ -238,24 +238,17 @@
     </div>
 
     <script>
-        // Get the saved end date from localStorage or set it to 1 year from now
-        let endDate = localStorage.getItem('endDate') ? new Date(localStorage.getItem('endDate')) : new Date();
-        if (!localStorage.getItem('endDate')) {
-            endDate.setFullYear(endDate.getFullYear() + 1);
-            localStorage.setItem('endDate', endDate);
-        }
+        // Initialize counts
+        let redCount = 0;
+        let blueCount = 0;
 
-        // Get the saved counts from localStorage or set them to 0
-        let redCount = localStorage.getItem('redCount') ? parseInt(localStorage.getItem('redCount')) : 0;
-        let blueCount = localStorage.getItem('blueCount') ? parseInt(localStorage.getItem('blueCount')) : 0;
-
-        // Update the pill counts on page load
-        document.querySelectorAll('.pill-count')[0].textContent = blueCount;
-        document.querySelectorAll('.pill-count')[1].textContent = redCount;
+        // Set the end date to 1 year from now
+        const endDate = new Date();
+        endDate.setFullYear(endDate.getFullYear() + 1);
 
         function updateCountdown() {
             const now = new Date();
-            let diff = endDate - now;
+            const diff = endDate - now;
 
             if (diff <= 0) {
                 document.querySelectorAll('.number').forEach(el => el.textContent = '00');
@@ -280,22 +273,22 @@
 
         // Button functionality
         function handlePillClick(button, counter, isRed) {
-            const count = isRed ? ++redCount : ++blueCount;
-            counter.textContent = count;
-            localStorage.setItem(isRed ? 'redCount' : 'blueCount', count);
-
-            // Adjust the end date based on pill clicks and save it to localStorage
-            const adjustmentDays = blueCount - redCount;
-            endDate = new Date(endDate.getTime() + adjustmentDays * 24 * 60 * 60 * 1000);
-            localStorage.setItem('endDate', endDate);
-
+            if (isRed) {
+                redCount++;
+                counter.textContent = redCount;
+            } else {
+                blueCount++;
+                counter.textContent = blueCount;
+            }
+            
             button.classList.add(isRed ? 'red-active' : 'blue-active');
-
+            
             setTimeout(() => {
                 button.classList.remove(isRed ? 'red-active' : 'blue-active');
             }, 200);
         }
 
+        // Initialize button event listeners
         const redPill = document.getElementById('redPill');
         const bluePill = document.getElementById('bluePill');
         const redCounter = redPill.parentElement.querySelector('.pill-count');
