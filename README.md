@@ -238,9 +238,71 @@
     </div>
 
     <script>
-        // ... (JavaScript code remains the same) ...
+        // Get the saved end date from localStorage or set it to 1 year from now
+        let endDate = localStorage.getItem('endDate') ? new Date(localStorage.getItem('endDate')) : new Date();
+        if (!localStorage.getItem('endDate')) {
+            endDate.setFullYear(endDate.getFullYear() + 1);
+            localStorage.setItem('endDate', endDate);
+        }
+
+        // Get the saved counts from localStorage or set them to 0
+        let redCount = localStorage.getItem('redCount') ? parseInt(localStorage.getItem('redCount')) : 0;
+        let blueCount = localStorage.getItem('blueCount') ? parseInt(localStorage.getItem('blueCount')) : 0;
+
+        // Update the pill counts on page load
+        document.querySelectorAll('.pill-count')[0].textContent = blueCount;
+        document.querySelectorAll('.pill-count')[1].textContent = redCount;
+
+        function updateCountdown() {
+            const now = new Date();
+            let diff = endDate - now;
+
+            if (diff <= 0) {
+                document.querySelectorAll('.number').forEach(el => el.textContent = '00');
+                return;
+            }
+
+            const months = Math.floor(diff / (1000 * 60 * 60 * 24 * 30.44));
+            const days = Math.floor((diff % (1000 * 60 * 60 * 24 * 30.44)) / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+            document.getElementById('months').textContent = String(months).padStart(2, '0');
+            document.getElementById('days').textContent = String(days).padStart(2, '0');
+            document.getElementById('hours').textContent = String(hours).padStart(2, '0');
+            document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
+            document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+        }
+
+        setInterval(updateCountdown, 1000);
+        updateCountdown();
+
+        // Button functionality
+        function handlePillClick(button, counter, isRed) {
+            const count = isRed ? ++redCount : ++blueCount;
+            counter.textContent = count;
+            localStorage.setItem(isRed ? 'redCount' : 'blueCount', count);
+
+            // Adjust the end date based on pill clicks and save it to localStorage
+            const adjustmentDays = blueCount - redCount;
+            endDate = new Date(endDate.getTime() + adjustmentDays * 24 * 60 * 60 * 1000);
+            localStorage.setItem('endDate', endDate);
+
+            button.classList.add(isRed ? 'red-active' : 'blue-active');
+
+            setTimeout(() => {
+                button.classList.remove(isRed ? 'red-active' : 'blue-active');
+            }, 200);
+        }
+
+        const redPill = document.getElementById('redPill');
+        const bluePill = document.getElementById('bluePill');
+        const redCounter = redPill.parentElement.querySelector('.pill-count');
+        const blueCounter = bluePill.parentElement.querySelector('.pill-count');
+
+        redPill.addEventListener('click', () => handlePillClick(redPill, redCounter, true));
+        bluePill.addEventListener('click', () => handlePillClick(bluePill, blueCounter, false));
     </script>
 </body>
 </html>
-
-Version 5 of 5
